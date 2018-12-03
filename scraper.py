@@ -58,9 +58,11 @@ def scrape_html(url):
     parser = HTML_Info_Parser()
     parser.feed(html_req.text)
 
-    phones, emails, urls = parser.phone_list,\
-        parser.email_list, parser.url_list
+    phones, emails, urls = (parser.phone_list,
+                            parser.email_list, parser.url_list)
+
     # output
+    print('Data found from {}: '.format(url))
     if phones:
         print('\nPhone Numbers:\n' + '\n'.join(phones))
     if emails:
