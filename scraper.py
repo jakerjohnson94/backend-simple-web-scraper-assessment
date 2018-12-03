@@ -27,13 +27,6 @@ class HTML_Info_Parser(HTMLParser):
         if tag in tag_dict.keys():
             [self.url_list.append(v) for k,v in attr if k == tag_dict[tag]]
 
-        # scrape phone numbers from link tags
-        elif tag == 'a':
-            [self.phone_list.append('({}){}-{}'.format(phone[0], phone[1], phone[2]))
-            for k,v in attr if k == 'href' and re.search(self.regex['phone'], v)]
-                    
-         
-
     def handle_data(self, data):
         """ find regex matches and format data for output """
         regex = self.regex
