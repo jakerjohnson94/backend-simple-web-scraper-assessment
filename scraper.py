@@ -1,23 +1,22 @@
 #!/usr/bin/env python2
-__author__ = 'Jake Johnson'
-
-import sys
 import argparse
 import requests
 import re
 from HTMLParser import HTMLParser
 
+__author__ = 'Jake Johnson'
+
 
 class HTML_Info_Parser(HTMLParser):
     phone_list, email_list, url_list = [], [], []
 
-  # ensure proper formatting and remove whitespace
+    # ensure proper formatting and remove whitespace
     def format_data(self, *strings):
         for string in strings:
             string = str(string.encode('ascii')).strip()
         return strings
 
-  # sort list and remove duplicates
+    # sort list and remove duplicates
     def format_list(self, lst):
         return sorted(list(set(lst)))
 
@@ -30,13 +29,16 @@ class HTML_Info_Parser(HTMLParser):
 
         regex = {
             'email': r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)",
-            'phone': r"1?\W*([2-9][0-8][0-9])\W*([2-9][0-9]{2})\W*([0-9]{4})(\se?x?t?(\d*))?",
-            'url': r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))[^\)\"';\s]+"
+            'phone': (r"1?\W*([2-9][0-8][0-9])\W*([2-9][0-9]{2})\W*([0-9]{4})"
+                      r"(\se?x?t?(\d*))?"),
+            'url': (r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]"
+                    r"|(?:%[0-9a-fA-F][0-9a-fA-F]))[^\)\"';\s]+")
         }
 
         # search raw html for regex matches
-        phone_matches, email_matches, url_matches = re.findall(
-            regex['phone'], data), re.findall(regex['email'], data), re.findall(regex['url'], data)
+        phone_matches = re.findall(regex['phone'], data)
+        email_matches = re.findall(regex['email'], data)
+        url_matches = re.findall(regex['url'], data)
 
         # format lists for output if they exist
         [self.phone_list.append(
@@ -44,7 +46,8 @@ class HTML_Info_Parser(HTMLParser):
          for phone in format_list(phone_matches) if phone_matches]
 
         [self.email_list.append(*format_data(email))
-         for email in format_list(email_matches) if email_matches and email.split('.')[-1] not in invalid_domains]
+         for email in format_list(email_matches) if email_matches and
+         email.split('.')[-1] not in invalid_domains]
 
         [self.url_list.append(*format_data(url))
          for url in format_list(url_matches) if url_matches]
@@ -55,7 +58,8 @@ def scrape_html(url):
     parser = HTML_Info_Parser()
     parser.feed(html_req.text)
 
-    phones, emails, urls = parser.phone_list, parser.email_list, parser.url_list
+    phones, emails, urls = parser.phone_list,\
+        parser.email_list, parser.url_list
     # output
     if phones:
         print('\nPhone Numbers:\n' + '\n'.join(phones))
